@@ -101,7 +101,11 @@ Token* readIdentKeyword(void)
 	TokenType tokenType = keywordType == TK_NONE ? TK_IDENT : keywordType;
 
 	Token* token = makeToken(tokenType, startLineNo, startColNo);
+#ifdef _MSC_VER
 	strncpy_s(token->string, sizeof(token->string), buf, identifierLength);
+#else
+	strncpy(token->string, buf, identifierLength);
+#endif
 
 	return token;
 }
@@ -135,7 +139,11 @@ Token* readNumber(void)
 	}
 
 	Token* numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
+#ifdef _MSC_VER
 	strncpy_s(numberToken->string, sizeof(numberToken->string), buf, numberLength);
+#else
+	strncpy(numberToken->string, buf, numberLength);
+#endif
 	numberToken->value = atoi(buf);
 
 	return numberToken;

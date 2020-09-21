@@ -25,7 +25,11 @@ int readChar(void)
 
 int openInputStream(char* fileName)
 {
+#ifdef _MSC_VER
 	fopen_s(&inputStream, fileName, "rt");
+#else
+	inputStream = fopen(fileName, "rt");
+#endif
 	if (inputStream == NULL)
 		return IO_ERROR;
 	lineNo = 1;
