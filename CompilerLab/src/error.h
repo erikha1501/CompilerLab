@@ -7,14 +7,14 @@
 #ifndef __ERROR_H__
 #define __ERROR_H__
 
-typedef enum {
-  ERR_ENDOFCOMMENT,
-  ERR_IDENTTOOLONG,
-  ERR_NUMLITERALTOOLONG,
-  ERR_INVALIDCHARCONSTANT,
-  ERR_INVALIDSYMBOL
+typedef enum
+{
+    ERR_ENDOFCOMMENT,
+    ERR_IDENTTOOLONG,
+    ERR_NUMLITERALTOOLONG,
+    ERR_INVALIDCHARCONSTANT,
+    ERR_INVALIDSYMBOL
 } ErrorCode;
-
 
 #define ERM_ENDOFCOMMENT "End of comment expected!"
 #define ERM_IDENTTOOLONG "Identification too long!"
