@@ -23,6 +23,9 @@ CharCode currentCharCode;
 
 /***************************************************************/
 
+/// <summary>
+/// Helper function for reading next CharCode
+/// </summary>
 void readCharCode()
 {
     readChar();
@@ -67,7 +70,7 @@ void skipComment()
     }
 }
 
-Token *readIdentKeyword(void)
+Token* readIdentKeyword(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
@@ -98,7 +101,9 @@ Token *readIdentKeyword(void)
     TokenType keywordType = checkKeyword(buf);
     TokenType tokenType = keywordType == TK_NONE ? TK_IDENT : keywordType;
 
-    Token *token = makeToken(tokenType, startLineNo, startColNo);
+    Token* token = makeToken(tokenType, startLineNo, startColNo);
+
+    // Copy lexeme to token->string.
 #ifdef _MSC_VER
     strncpy_s(token->string, sizeof(token->string), buf, identifierLength);
 #else
@@ -108,7 +113,7 @@ Token *readIdentKeyword(void)
     return token;
 }
 
-Token *readNumber(void)
+Token* readNumber(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
@@ -136,7 +141,9 @@ Token *readNumber(void)
         readCharCode();
     }
 
-    Token *numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
+    Token* numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
+
+    // Copy lexeme to token->string.
 #ifdef _MSC_VER
     strncpy_s(numberToken->string, sizeof(numberToken->string), buf, numberLength);
 #else
@@ -147,13 +154,15 @@ Token *readNumber(void)
     return numberToken;
 }
 
-Token *readConstChar(void)
+Token* readConstChar(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
     int charValue;
 
     readCharCode();
+
+    // Check if currentChar is a printable character.
     if (currentChar >= 0x20 && currentChar <= 0x7E)
     {
         charValue = currentChar;
@@ -162,7 +171,7 @@ Token *readConstChar(void)
         if (currentCharCode == CHAR_SINGLEQUOTE)
         {
             readCharCode();
-            Token *constCharToken = makeToken(TK_CHAR, startLineNo, startColNo);
+            Token* constCharToken = makeToken(TK_CHAR, startLineNo, startColNo);
             constCharToken->value = charValue;
             constCharToken->string[0] = charValue;
             constCharToken->string[1] = '\0';
@@ -175,9 +184,9 @@ Token *readConstChar(void)
     return NULL;
 }
 
-Token *getToken(void)
+Token* getToken(void)
 {
-    Token *token;
+    Token* token;
     int startLineNo, startColNo;
 
     if (currentChar == EOF)
@@ -344,7 +353,7 @@ Token *getToken(void)
 
 /******************************************************************/
 
-void printToken(Token *token)
+void printToken(Token* token)
 {
 
     printf("%d-%d:", token->lineNo, token->colNo);
@@ -488,9 +497,9 @@ void printToken(Token *token)
     }
 }
 
-int scan(char *fileName)
+int scan(char* fileName)
 {
-    Token *token;
+    Token* token;
 
     if (openInputStream(fileName) == IO_ERROR)
         return IO_ERROR;
@@ -511,21 +520,15 @@ int scan(char *fileName)
 
 /******************************************************************/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    char *filePath = "./test/example3.kpl";
-
-    //if (argc <= 1)
-    //{
-    //    printf("scanner: no input file.\n");
-    //    return -1;
-    //}
-    if (argc == 2)
+    if (argc <= 1)
     {
-        filePath = argv[1];
+        printf("scanner: no input file.\n");
+        return -1;
     }
 
-    if (scan(filePath) == IO_ERROR)
+    if (scan(argv[1]) == IO_ERROR)
     {
         printf("Can\'t read input file!\n");
         return -1;
