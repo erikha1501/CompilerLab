@@ -47,7 +47,7 @@ void skipBlank()
     }
 }
 
-void skipComment()
+void skipBlockComment()
 {
     while (1)
     {
@@ -64,6 +64,20 @@ void skipComment()
         if (currentChar == EOF)
         {
             error(ERR_ENDOFCOMMENT, lineNo, colNo);
+        }
+
+        readCharCode();
+    }
+}
+
+void skipLineComment()
+{
+    while (1)
+    {
+        if (currentChar == '\n')
+        {
+            readCharCode();
+            return;
         }
 
         readCharCode();
@@ -242,7 +256,7 @@ Token* getToken(void)
         else if (currentCharCode == CHAR_TIMES)
         {
             readCharCode();
-            skipComment();
+            skipBlockComment();
             return getToken();
         }
         else
@@ -342,6 +356,11 @@ Token* getToken(void)
         token = makeToken(SB_RPAR, lineNo, colNo);
         readCharCode();
         return token;
+
+    case CHAR_DOUBLEQUOTE:
+        readCharCode();
+        skipLineComment();
+        return getToken();
 
     default:
         token = makeToken(TK_NONE, lineNo, colNo);

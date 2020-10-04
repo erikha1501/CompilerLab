@@ -1,0 +1,4 @@
+" this is a line comment
+Program Example1; (* Example 1 *)
+Begin " another line comment
+End. (* Example 1 *)
