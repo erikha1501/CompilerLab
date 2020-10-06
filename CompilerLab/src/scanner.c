@@ -20,6 +20,7 @@ extern int currentChar;
 extern CharCode charCodes[];
 
 CharCode currentCharCode;
+int state = -1;
 
 /***************************************************************/
 
@@ -41,32 +42,68 @@ void readCharCode()
 
 void skipBlank()
 {
-    while (currentCharCode == CHAR_SPACE)
+    while (state == 1 && currentCharCode == CHAR_SPACE)
     {
         readCharCode();
     }
+    state = 0;
 }
 
 void skipBlockComment()
 {
     while (1)
     {
-        if (currentCharCode == CHAR_TIMES)
+        switch (state)
         {
-            readCharCode();
-            if (currentCharCode == CHAR_RPAR)
+        case 3:
+            if (currentChar == EOF)
+            {
+                state = 40;
+            }
+            else if (currentCharCode == CHAR_TIMES)
             {
                 readCharCode();
-                return;
+                state = 4;
             }
-        }
+            else
+            {
+                readCharCode();
+                state = 3;
+            }
+            break;
 
-        if (currentChar == EOF)
-        {
+        case 4:
+            if (currentChar == EOF)
+            {
+                state = 40;
+            }
+            else if (currentCharCode == CHAR_TIMES)
+            {
+                readCharCode();
+                state = 4;
+            }
+            else if (currentCharCode == CHAR_RPAR)
+            {
+                readCharCode();
+                state = 5;
+            }
+            else
+            {
+                state = 3;
+            }
+            break;
+
+        case 5:
+            state = 0;
+            return;
+
+        case 40:
             error(ERR_ENDOFCOMMENT, lineNo, colNo);
-        }
+            return;
 
-        readCharCode();
+        default:
+            break;
+        }
     }
 }
 
@@ -94,37 +131,46 @@ Token* readIdentKeyword(void)
 
     while (1)
     {
-        if (currentCharCode == CHAR_LETTER || currentCharCode == CHAR_DIGIT)
+        switch (state)
         {
-            if (identifierLength > MAX_IDENT_LEN)
+        case 8:
+            if (currentCharCode == CHAR_LETTER || currentCharCode == CHAR_DIGIT)
             {
-                error(ERR_IDENTTOOLONG, lineNo, colNo);
-            }
+                if (identifierLength > MAX_IDENT_LEN)
+                {
+                    error(ERR_IDENTTOOLONG, lineNo, colNo);
+                    state = -1;
+                    return makeToken(TK_NONE, startLineNo, startColNo);
+                }
 
-            buf[identifierLength++] = currentChar;
-        }
-        else
-        {
+                buf[identifierLength++] = currentChar;
+                readCharCode();
+                state = 8;
+            }
+            else
+            {
+                state = 9;
+            }
+            break;
+        case 9:
             buf[identifierLength] = '\0';
+
+            TokenType keywordType = checkKeyword(buf);
+            TokenType tokenType = keywordType == TK_NONE ? TK_IDENT : keywordType;
+
+            Token* token = makeToken(tokenType, startLineNo, startColNo);
+            // Copy lexeme to token->string.
+#ifdef _MSC_VER
+            strncpy_s(token->string, sizeof(token->string), buf, identifierLength);
+#else
+            strncpy(token->string, buf, identifierLength);
+#endif
+            state = 0;
+            return token;
+        default:
             break;
         }
-
-        readCharCode();
     }
-
-    TokenType keywordType = checkKeyword(buf);
-    TokenType tokenType = keywordType == TK_NONE ? TK_IDENT : keywordType;
-
-    Token* token = makeToken(tokenType, startLineNo, startColNo);
-
-    // Copy lexeme to token->string.
-#ifdef _MSC_VER
-    strncpy_s(token->string, sizeof(token->string), buf, identifierLength);
-#else
-    strncpy(token->string, buf, identifierLength);
-#endif
-
-    return token;
 }
 
 Token* readNumber(void)
@@ -137,35 +183,46 @@ Token* readNumber(void)
 
     while (1)
     {
-        if (currentCharCode == CHAR_DIGIT)
+        switch (state)
         {
-            if (numberLength > MAX_NUM_LEN)
+        case 10:
+            if (currentCharCode == CHAR_DIGIT)
             {
-                error(ERR_NUMLITERALTOOLONG, lineNo, colNo);
-            }
+                if (numberLength > MAX_NUM_LEN)
+                {
+                    error(ERR_NUMLITERALTOOLONG, lineNo, colNo);
+                    state = -1;
+                    return makeToken(TK_NONE, startLineNo, startColNo);
+                }
 
-            buf[numberLength++] = currentChar;
-        }
-        else
-        {
+                buf[numberLength++] = currentChar;
+                readCharCode();
+                state = 10;
+            }
+            else
+            {
+                state = 11;
+            }
+            break;
+        case 11:
             buf[numberLength] = '\0';
+
+            Token* numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
+
+            // Copy lexeme to token->string.
+#ifdef _MSC_VER
+            strncpy_s(numberToken->string, sizeof(numberToken->string), buf, numberLength);
+#else
+            strncpy(numberToken->string, buf, numberLength);
+#endif
+            numberToken->value = atoi(buf);
+
+            state = 0;
+            return numberToken;
+        default:
             break;
         }
-
-        readCharCode();
     }
-
-    Token* numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
-
-    // Copy lexeme to token->string.
-#ifdef _MSC_VER
-    strncpy_s(numberToken->string, sizeof(numberToken->string), buf, numberLength);
-#else
-    strncpy(numberToken->string, buf, numberLength);
-#endif
-    numberToken->value = atoi(buf);
-
-    return numberToken;
 }
 
 Token* readConstChar(void)
@@ -190,12 +247,14 @@ Token* readConstChar(void)
             constCharToken->string[0] = charValue;
             constCharToken->string[1] = '\0';
 
+            state = 0;
             return constCharToken;
         }
     }
 
     error(ERR_INVALIDCHARCONSTANT, lineNo, colNo);
-    return NULL;
+    state = -1;
+    return makeToken(TK_NONE, startLineNo, startColNo);
 }
 
 Token* getToken(void)
@@ -209,38 +268,46 @@ Token* getToken(void)
     switch (charCodes[currentChar])
     {
     case CHAR_SPACE:
+        state = 1;
         skipBlank();
         return getToken();
 
     case CHAR_LETTER:
+        state = 8;
         return readIdentKeyword();
 
     case CHAR_DIGIT:
+        state = 10;
         return readNumber();
 
     case CHAR_PLUS:
         token = makeToken(SB_PLUS, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_MINUS:
         token = makeToken(SB_MINUS, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_TIMES:
         token = makeToken(SB_TIMES, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_SLASH:
         token = makeToken(SB_SLASH, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_EQ:
         token = makeToken(SB_EQ, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_LPAR:
@@ -256,11 +323,13 @@ Token* getToken(void)
         else if (currentCharCode == CHAR_TIMES)
         {
             readCharCode();
+            state = 3;
             skipBlockComment();
             return getToken();
         }
         else
         {
+            state = 0;
             return makeToken(SB_LPAR, startLineNo, startColNo);
         }
 
@@ -275,10 +344,12 @@ Token* getToken(void)
         if (currentCharCode == CHAR_EQ)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_LE, startLineNo, startColNo);
         }
         else
         {
+            state = 0;
             return makeToken(SB_LT, startLineNo, startColNo);
         }
 
@@ -290,10 +361,12 @@ Token* getToken(void)
         if (currentCharCode == CHAR_EQ)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_GE, startLineNo, startColNo);
         }
         else
         {
+            state = 0;
             return makeToken(SB_GT, startLineNo, startColNo);
         }
 
@@ -305,11 +378,14 @@ Token* getToken(void)
         if (currentCharCode == CHAR_EQ)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_NEQ, startLineNo, startColNo);
         }
         else
         {
             error(ERR_INVALIDSYMBOL, lineNo, colNo);
+            state = -1;
+            return makeToken(TK_NONE, startLineNo, startColNo);
         }
 
     case CHAR_PERIOD:
@@ -320,10 +396,12 @@ Token* getToken(void)
         if (currentCharCode == CHAR_RPAR)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_RSEL, startLineNo, startColNo);
         }
         else
         {
+            state = 0;
             return makeToken(SB_PERIOD, startLineNo, startColNo);
         }
 
@@ -335,31 +413,37 @@ Token* getToken(void)
         if (currentCharCode == CHAR_EQ)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_ASSIGN, startLineNo, startColNo);
         }
         else
         {
+            state = 0;
             return makeToken(SB_COLON, startLineNo, startColNo);
         }
 
     case CHAR_COMMA:
         token = makeToken(SB_COMMA, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_SEMICOLON:
         token = makeToken(SB_SEMICOLON, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_RPAR:
         token = makeToken(SB_RPAR, lineNo, colNo);
         readCharCode();
+        state = 0;
         return token;
 
     case CHAR_DOUBLEQUOTE:
         readCharCode();
         skipLineComment();
+        state = 0;
         return getToken();
 
     default:
@@ -524,15 +608,19 @@ int scan(char* fileName)
         return IO_ERROR;
     currentCharCode = charCodes[currentChar];
 
-    token = getToken();
-    while (token->tokenType != TK_EOF)
+    state = 0;
+    while (1)
     {
+        token = getToken();
+        if (token->tokenType == TK_EOF)
+        {
+            break;
+        }
+
         printToken(token);
         free(token);
-        token = getToken();
     }
 
-    free(token);
     closeInputStream();
     return IO_SUCCESS;
 }
