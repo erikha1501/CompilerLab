@@ -318,6 +318,7 @@ Token* getToken(void)
         if (currentCharCode == CHAR_PERIOD)
         {
             readCharCode();
+            state = 0;
             return makeToken(SB_LSEL, startLineNo, startColNo);
         }
         else if (currentCharCode == CHAR_TIMES)
