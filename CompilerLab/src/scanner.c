@@ -265,6 +265,11 @@ Token* getToken(void)
     if (currentChar == EOF)
         return makeToken(TK_EOF, lineNo, colNo);
 
+    if (state != 0)
+    {
+        error(ERR_INTERNALERROR, lineNo, colNo);
+    }
+
     switch (charCodes[currentChar])
     {
     case CHAR_SPACE:
@@ -607,19 +612,23 @@ int scan(char* fileName)
 
     if (openInputStream(fileName) == IO_ERROR)
         return IO_ERROR;
-    currentCharCode = charCodes[currentChar];
 
+    currentCharCode = charCodes[currentChar];
     state = 0;
+
     while (1)
     {
         token = getToken();
         if (token->tokenType == TK_EOF)
         {
+            free(token);
             break;
         }
-
-        printToken(token);
-        free(token);
+        else
+        {
+            printToken(token);
+            free(token);
+        }
     }
 
     closeInputStream();
