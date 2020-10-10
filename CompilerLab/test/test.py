@@ -66,7 +66,7 @@ def run_test(program_path, arguments, test_case, test_option):
         test_name = "Unknown"
 
     # Prepare arguments passed to program
-    full_args = f"test_input arguments" if arguments else test_input
+    full_args = f"{test_input} {arguments}" if arguments else test_input
 
     process = subprocess.Popen([program_path, full_args],
                                 stdout=subprocess.PIPE,
