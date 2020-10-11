@@ -111,14 +111,15 @@ void skipLineComment()
 {
     while (1)
     {
-        if (currentChar == '\n')
+        if (currentChar == EOF || currentChar == '\n')
         {
-            readCharCode();
-            return;
+            break;
         }
 
         readCharCode();
     }
+
+    state = 0;
 }
 
 Token* readIdentKeyword(void)
@@ -449,7 +450,6 @@ Token* getToken(void)
     case CHAR_DOUBLEQUOTE:
         readCharCode();
         skipLineComment();
-        state = 0;
         return getToken();
 
     default:
