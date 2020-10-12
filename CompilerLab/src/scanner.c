@@ -135,8 +135,10 @@ Token* readIdentKeyword(void)
         switch (state)
         {
         case 8:
+            // Accumulate letters and digits
             if (currentCharCode == CHAR_LETTER || currentCharCode == CHAR_DIGIT)
             {
+                // Check for length limit
                 if (identifierLength > MAX_IDENT_LEN)
                 {
                     error(ERR_IDENTTOOLONG, lineNo, colNo);
@@ -153,6 +155,7 @@ Token* readIdentKeyword(void)
                 state = 9;
             }
             break;
+
         case 9:
             buf[identifierLength] = '\0';
 
@@ -187,6 +190,7 @@ Token* readNumber(void)
         switch (state)
         {
         case 10:
+            // Accumulate digits
             if (currentCharCode == CHAR_DIGIT)
             {
                 if (numberLength > MAX_NUM_LEN)
@@ -205,6 +209,7 @@ Token* readNumber(void)
                 state = 11;
             }
             break;
+
         case 11:
             buf[numberLength] = '\0';
 
@@ -266,6 +271,7 @@ Token* getToken(void)
     if (currentChar == EOF)
         return makeToken(TK_EOF, lineNo, colNo);
 
+    // Upon entering getToken, state should be 0
     if (state != 0)
     {
         error(ERR_INTERNALERROR, lineNo, colNo);

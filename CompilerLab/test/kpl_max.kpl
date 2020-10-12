@@ -1,0 +1,71 @@
+PROGRAM  FINDMAX;  (* Find max *)
+CONST MAX = 10;
+TYPE T = INTEGER;
+VAR  A : ARRAY(. 10 .) OF T;
+     N : INTEGER;
+     CH : CHAR;
+
+PROCEDURE INPUT;
+VAR I : INTEGER;
+    TMP : INTEGER;
+BEGIN
+  N := READI;
+  FOR I := 1 TO N DO
+     A(.I.) := READI;
+END;
+
+PROCEDURE OUTPUT;
+VAR I : INTEGER;
+BEGIN
+  FOR I := 1 TO N DO
+    BEGIN
+       CALL WRITEI(A(.I.));
+       CALL WRITELN;
+     END
+END;
+
+PROCEDURE FINDMAX;
+VAR I : INTEGER;
+    M : INTEGER;
+BEGIN
+    I := 1;
+    M := A(.I.);
+
+    FOR I := 1 TO N DO
+    BEGIN
+        IF A(.I.) > M THEN
+        BEGIN
+            M := A(.I.);
+	END
+    END
+
+    CALL WRITEI(M);
+    CALL WRITELN;
+
+    FOR I := 1 TO N DO
+    BEGIN
+        IF A(.I.) = M THEN
+        BEGIN
+            CALL WRITEI(I);
+            IF I != N THEN
+            BEGIN
+		CALL WRITEC(',');
+                CALL WRITEC(' ');
+            END
+        END
+    END
+END;
+
+
+BEGIN
+   CH := 'y';
+   WHILE CH = 'y' DO
+     BEGIN
+        CALL INPUT;
+        CALL OUTPUT;
+        
+        CALL FINDMAX;
+
+        CH := READC;
+     END
+END.  (* Find max *)

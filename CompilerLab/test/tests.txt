@@ -1,4 +1,4 @@
-1:example1.kpl:result1.txt
-2:example2.kpl:result2.txt
-3:example3.kpl:result3.txt
-4:test_comment.kpl:test_comment_result.txt
+example 1:example1.kpl:result1.txt
+example 2:example2.kpl:result2.txt
+example 3:example3.kpl:result3.txt
+comment:test_comment.kpl:test_comment_result.txt
