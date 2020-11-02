@@ -1,0 +1,4 @@
+1:parser test/example1.kpl:parser test/result1.txt
+2:parser test/example2.kpl:parser test/result2.txt
+3:parser test/example3.kpl:parser test/result3.txt
+4:parser test/example1.kpl:parser test/result1.txt

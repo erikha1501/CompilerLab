@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "scanner.h"
 #include "reader.h"
 #include "charcode.h"
 #include "token.h"
@@ -612,50 +613,19 @@ void printToken(Token* token)
     }
 }
 
-int scan(char* fileName)
+Token* getValidToken(void)
 {
-    Token* token;
-
-    if (openInputStream(fileName) == IO_ERROR)
-        return IO_ERROR;
-
-    currentCharCode = charCodes[currentChar];
-    state = 0;
-
-    while (1)
+    Token* token = getToken();
+    while (token->tokenType == TK_NONE)
     {
+        free(token);
         token = getToken();
-        if (token->tokenType == TK_EOF)
-        {
-            free(token);
-            break;
-        }
-        else
-        {
-            printToken(token);
-            free(token);
-        }
     }
-
-    closeInputStream();
-    return IO_SUCCESS;
+    return token;
 }
 
-/******************************************************************/
-
-int main(int argc, char* argv[])
+void initialize()
 {
-    if (argc <= 1)
-    {
-        printf("scanner: no input file.\n");
-        return -1;
-    }
-
-    if (scan(argv[1]) == IO_ERROR)
-    {
-        printf("Can\'t read input file!\n");
-        return -1;
-    }
-
-    return 0;
+    currentCharCode = charCodes[currentChar];
+    state = 0;
 }

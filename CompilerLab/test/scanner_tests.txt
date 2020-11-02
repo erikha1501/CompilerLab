@@ -1,0 +1,4 @@
+example 1:scanner test/example1.kpl:scanner test/result1.txt
+example 2:scanner test/example2.kpl:scanner test/result2.txt
+example 3:scanner test/example3.kpl:scanner test/result3.txt
+comment:scanner test/test_comment.kpl:scanner test/test_comment_result.txt

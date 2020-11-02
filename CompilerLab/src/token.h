@@ -71,5 +71,6 @@ typedef struct
 
 TokenType checkKeyword(char *string);
 Token *makeToken(TokenType tokenType, int lineNo, int colNo);
+char* tokenToString(TokenType tokenType);
 
 #endif
