@@ -300,6 +300,11 @@ void compileParams2(void)
 
 void compileParam(void)
 {
+    if (lookAhead->tokenType == KW_VAR)
+    {
+        eat(KW_VAR);
+    }
+    
     if (lookAhead->tokenType == TK_IDENT)
     {
         eat(TK_IDENT);
@@ -308,11 +313,9 @@ void compileParam(void)
     }
     else
     {
-        eat(KW_VAR);
-        eat(TK_IDENT);
-        eat(SB_COLON);
-        compileBasicType();
+        error(ERR_INVALIDPARAM, lookAhead->lineNo, lookAhead->colNo);
     }
+    
 }
 
 void compileStatements(void)

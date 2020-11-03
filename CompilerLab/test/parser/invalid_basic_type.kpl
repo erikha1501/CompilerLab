@@ -1,0 +1,9 @@
+PROGRAM  EXAMPLE6;  (* Example 6 *)
+
+FUNCTION SUM(A:INTEGER; B:INT) : INTEGER;
+BEGIN
+    SUM := A + B;
+END;
+
+BEGIN
+END.  (* Example 6 *)

@@ -1,0 +1,17 @@
+Parsing a Program ....
+1-1:KW_PROGRAM
+1-10:TK_IDENT(EXAMPLE6)
+1-18:SB_SEMICOLON
+Parsing a Block ....
+Parsing subtoutines ....
+Parsing a function ....
+3-1:KW_FUNCTION
+3-10:TK_IDENT(SUM)
+3-13:SB_LPAR
+3-14:TK_IDENT(A)
+3-15:SB_COLON
+3-16:KW_INTEGER
+3-23:SB_SEMICOLON
+3-25:TK_IDENT(B)
+3-26:SB_COLON
+3-27:Invalid basic type!
