@@ -123,7 +123,7 @@ void skipLineComment()
     state = 0;
 }
 
-Token* readIdentKeyword(void)
+Token *readIdentKeyword(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
@@ -163,7 +163,7 @@ Token* readIdentKeyword(void)
             TokenType keywordType = checkKeyword(buf);
             TokenType tokenType = keywordType == TK_NONE ? TK_IDENT : keywordType;
 
-            Token* token = makeToken(tokenType, startLineNo, startColNo);
+            Token *token = makeToken(tokenType, startLineNo, startColNo);
             // Copy lexeme to token->string.
 #ifdef _MSC_VER
             strncpy_s(token->string, sizeof(token->string), buf, identifierLength);
@@ -178,7 +178,7 @@ Token* readIdentKeyword(void)
     }
 }
 
-Token* readNumber(void)
+Token *readNumber(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
@@ -214,7 +214,7 @@ Token* readNumber(void)
         case 11:
             buf[numberLength] = '\0';
 
-            Token* numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
+            Token *numberToken = makeToken(TK_NUMBER, startLineNo, startColNo);
 
             // Copy lexeme to token->string.
 #ifdef _MSC_VER
@@ -232,7 +232,7 @@ Token* readNumber(void)
     }
 }
 
-Token* readConstChar(void)
+Token *readConstChar(void)
 {
     int startLineNo = lineNo;
     int startColNo = colNo;
@@ -249,7 +249,7 @@ Token* readConstChar(void)
         if (currentCharCode == CHAR_SINGLEQUOTE)
         {
             readCharCode();
-            Token* constCharToken = makeToken(TK_CHAR, startLineNo, startColNo);
+            Token *constCharToken = makeToken(TK_CHAR, startLineNo, startColNo);
             constCharToken->value = charValue;
             constCharToken->string[0] = charValue;
             constCharToken->string[1] = '\0';
@@ -264,9 +264,9 @@ Token* readConstChar(void)
     return makeToken(TK_NONE, startLineNo, startColNo);
 }
 
-Token* getToken(void)
+Token *getToken(void)
 {
-    Token* token;
+    Token *token;
     int startLineNo, startColNo;
 
     if (currentChar == EOF)
@@ -469,7 +469,7 @@ Token* getToken(void)
 
 /******************************************************************/
 
-void printToken(Token* token)
+void printToken(Token *token)
 {
 
     printf("%d-%d:", token->lineNo, token->colNo);
@@ -613,9 +613,9 @@ void printToken(Token* token)
     }
 }
 
-Token* getValidToken(void)
+Token *getValidToken(void)
 {
-    Token* token = getToken();
+    Token *token = getToken();
     while (token->tokenType == TK_NONE)
     {
         free(token);

@@ -11,12 +11,12 @@
 #include "parser.h"
 #include "error.h"
 
-Token* currentToken;
-Token* lookAhead;
+Token *currentToken;
+Token *lookAhead;
 
 void scan(void)
 {
-    Token* tmp = currentToken;
+    Token *tmp = currentToken;
     currentToken = lookAhead;
     lookAhead = getValidToken();
     free(tmp);
@@ -29,7 +29,8 @@ void eat(TokenType tokenType)
         printToken(lookAhead);
         scan();
     }
-    else missingToken(tokenType, lookAhead->lineNo, lookAhead->colNo);
+    else
+        missingToken(tokenType, lookAhead->lineNo, lookAhead->colNo);
 }
 
 void compileProgram(void)
@@ -204,34 +205,34 @@ void compileUnsignedConstant(void)
 
 void compileConstant(void)
 {
-    if (lookAhead->tokenType == TK_CHAR)
+    switch (lookAhead->tokenType)
     {
+    case TK_CHAR:
         eat(TK_CHAR);
-    }
-    else if (lookAhead->tokenType == SB_PLUS)
-    {
-        eat(SB_PLUS);
+    case SB_PLUS:
+    case SB_MINUS:
+        eat(lookAhead->tokenType);
         compileConstant2();
-    }
-    else if (lookAhead->tokenType == SB_MINUS)
-    {
-        eat(SB_MINUS);
+        break;
+    default:
         compileConstant2();
-    }
-    else
-    {
-        compileConstant2();
+        break;
     }
 }
 
 void compileConstant2(void)
 {
-    if (lookAhead->tokenType == TK_IDENT)
+    switch (lookAhead->tokenType)
     {
-        eat(TK_IDENT);
+    case TK_IDENT:
+    case TK_NUMBER:
+        eat(lookAhead->tokenType);
+        break;
+
+    default:
+        error(ERR_INVALIDCONSTANT, lookAhead->lineNo, lookAhead->colNo);
+        break;
     }
-    else
-        eat(TK_NUMBER);
 }
 
 void compileType(void)
@@ -247,7 +248,7 @@ void compileType(void)
     case TK_IDENT:
         eat(TK_IDENT);
         break;
-    default:
+    case KW_ARRAY:
         eat(KW_ARRAY);
         eat(SB_LSEL);
         eat(TK_NUMBER);
@@ -255,17 +256,25 @@ void compileType(void)
         eat(KW_OF);
         compileType();
         break;
+    default:
+        error(ERR_INVALIDTYPE, lookAhead->lineNo, lookAhead->colNo);
+        break;
     }
 }
 
 void compileBasicType(void)
 {
-    if (lookAhead->tokenType == KW_INTEGER)
+    switch (lookAhead->tokenType)
     {
-        eat(KW_INTEGER);
+    case KW_INTEGER:
+    case KW_CHAR:
+        eat(lookAhead->tokenType);
+        break;
+
+    default:
+        error(ERR_INVALIDBASICTYPE, lookAhead->lineNo, lookAhead->colNo);
+        break;
     }
-    else
-        eat(KW_CHAR);
 }
 
 void compileParams(void)
@@ -411,7 +420,7 @@ void compileWhileSt(void)
     compileCondition();
     eat(KW_DO);
     compileStatement();
-    assert("While statement pased ....");
+    assert("While statement parsed ....");
 }
 
 void compileForSt(void)
@@ -549,7 +558,7 @@ void compileFactor(void)
         eat(SB_RPAR);
         break;
     default:
-
+        error(ERR_INVALIDFACTOR, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 }
@@ -565,7 +574,7 @@ void compileIndexes(void)
     }
 }
 
-int compile(char* fileName)
+int compile(char *fileName)
 {
     if (openInputStream(fileName) == IO_ERROR)
         return IO_ERROR;

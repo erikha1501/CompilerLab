@@ -69,7 +69,7 @@ void missingToken(TokenType tokenType, int lineNo, int colNo)
     exit(0);
 }
 
-void assert(char* msg)
+void assert(char *msg)
 {
     printf("%s\n", msg);
 }

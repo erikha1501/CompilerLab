@@ -1,4 +1,6 @@
-1:parser test/example1.kpl:parser test/result1.txt
-2:parser test/example2.kpl:parser test/result2.txt
-3:parser test/example3.kpl:parser test/result3.txt
-4:parser test/example1.kpl:parser test/result1.txt
+1:parser/example1.kpl:parser/result1.txt
+2:parser/example2.kpl:parser/result2.txt
+3:parser/example3.kpl:parser/result3.txt
+4:parser/example4.kpl:parser/result4.txt
+invalid_constant:parser/invalid_constant.kpl:parser/result_invalid_constant.txt
+invalid_type:parser/invalid_type.kpl:parser/result_invalid_type.txt

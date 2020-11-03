@@ -1,0 +1,5 @@
+PROGRAM  EXAMPLE5;  (* Example 5 *)
+TYPE T = ARRAY(.10.) OF *;
+
+BEGIN
+END.  (* Example 5 *)
