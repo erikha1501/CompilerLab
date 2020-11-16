@@ -209,6 +209,7 @@ void compileConstant(void)
     {
     case TK_CHAR:
         eat(TK_CHAR);
+        break;
     case SB_PLUS:
     case SB_MINUS:
         eat(lookAhead->tokenType);
