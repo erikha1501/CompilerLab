@@ -1,0 +1,5 @@
+Program ExampleArguments; (* Example arguments *)
+
+Begin
+Call Sum(a, b);
+End. (* Example arguments *)

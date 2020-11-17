@@ -1,5 +1,5 @@
 Program Example2; (* Factorial *)
-   
+
 Var n : Integer;
 
 Function F(n : Integer) : Integer;

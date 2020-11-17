@@ -44,6 +44,7 @@ void compileElseSt(void);
 void compileWhileSt(void);
 void compileForSt(void);
 void compileArguments(void);
+void compileArguments1(void);
 void compileArguments2(void);
 void compileCondition(void);
 void compileCondition2(void);

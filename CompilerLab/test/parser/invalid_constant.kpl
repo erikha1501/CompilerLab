@@ -1,5 +1,5 @@
 PROGRAM  EXAMPLE5;  (* Example 5 *)
-CONST INVALID_CONST = -*A;
+CONST INVALID_CONST = );
 
 BEGIN
 END.  (* Example 5 *)
