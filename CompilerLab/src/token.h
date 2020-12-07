@@ -1,4 +1,4 @@
-/* 
+/*
  * @copyright (c) 2008, Hedspi, Hanoi University of Technology
  * @author Huu-Duc Nguyen
  * @version 1.0
@@ -69,8 +69,8 @@ typedef struct
     int value;
 } Token;
 
-TokenType checkKeyword(char *string);
-Token *makeToken(TokenType tokenType, int lineNo, int colNo);
-char *tokenToString(TokenType tokenType);
+TokenType checkKeyword(char* string);
+Token* makeToken(TokenType tokenType, int lineNo, int colNo);
+char* tokenToString(TokenType tokenType);
 
 #endif

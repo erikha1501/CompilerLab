@@ -1,11 +1,11 @@
-/* 
+/*
  * @copyright (c) 2008, Hedspi, Hanoi University of Technology
  * @author Huu-Duc Nguyen
  * @version 1.0
  */
 
-#include <stdio.h>
 #include "debug.h"
+#include <stdio.h>
 
 void pad(int n)
 {
@@ -14,7 +14,7 @@ void pad(int n)
         printf(" ");
 }
 
-void printType(Type *type)
+void printType(Type* type)
 {
     switch (type->typeClass)
     {
@@ -32,7 +32,7 @@ void printType(Type *type)
     }
 }
 
-void printConstantValue(ConstantValue *value)
+void printConstantValue(ConstantValue* value)
 {
     switch (value->type)
     {
@@ -47,7 +47,7 @@ void printConstantValue(ConstantValue *value)
     }
 }
 
-void printObject(Object *obj, int indent)
+void printObject(Object* obj, int indent)
 {
     switch (obj->kind)
     {
@@ -94,9 +94,9 @@ void printObject(Object *obj, int indent)
     }
 }
 
-void printObjectList(ObjectNode *objList, int indent)
+void printObjectList(ObjectNode* objList, int indent)
 {
-    ObjectNode *node = objList;
+    ObjectNode* node = objList;
     while (node != NULL)
     {
         printObject(node->object, indent);
@@ -105,7 +105,7 @@ void printObjectList(ObjectNode *objList, int indent)
     }
 }
 
-void printScope(Scope *scope, int indent)
+void printScope(Scope* scope, int indent)
 {
     printObjectList(scope->objList, indent);
 }

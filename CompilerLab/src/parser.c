@@ -6,17 +6,17 @@
 
 #include <stdlib.h>
 
+#include "error.h"
+#include "parser.h"
 #include "reader.h"
 #include "scanner.h"
-#include "parser.h"
-#include "error.h"
 
-Token *currentToken;
-Token *lookAhead;
+Token* currentToken;
+Token* lookAhead;
 
 void scan(void)
 {
-    Token *tmp = currentToken;
+    Token* tmp = currentToken;
     currentToken = lookAhead;
     lookAhead = getValidToken();
     free(tmp);
@@ -472,13 +472,13 @@ void compileArguments1(void)
     case SB_LPAR:
         compileExpression();
         compileArguments2();
-        break;  
+        break;
     case SB_RPAR:
         break;
     default:
         error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
         break;
-    }   
+    }
 }
 
 void compileArguments2(void)
@@ -582,7 +582,7 @@ void compileTerm(void)
 
 void compileTerm2(void)
 {
-switch (lookAhead->tokenType)
+    switch (lookAhead->tokenType)
     {
     case SB_TIMES:
         eat(SB_TIMES);
@@ -661,7 +661,7 @@ void compileIndexes(void)
     }
 }
 
-int compile(char *fileName)
+int compile(char* fileName)
 {
     if (openInputStream(fileName) == IO_ERROR)
         return IO_ERROR;

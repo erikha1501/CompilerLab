@@ -1,4 +1,4 @@
-/* 
+/*
  * @copyright (c) 2008, Hedspi, Hanoi University of Technology
  * @author Huu-Duc Nguyen
  * @version 1.0
@@ -7,15 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "symtab.h"
 #include "debug.h"
+#include "symtab.h"
 
-extern SymTab *symtab;
+extern SymTab* symtab;
 /******************************************************************/
 
 int main()
 {
-    Object *obj;
+    Object* obj;
 
     initSymTab();
 

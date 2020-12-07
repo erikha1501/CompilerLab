@@ -148,19 +148,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\charcode.c" />
+    <ClCompile Include="src\debug.c" />
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="src\reader.c" />
     <ClCompile Include="src\scanner.c" />
+    <ClCompile Include="src\symtab.c" />
     <ClCompile Include="src\token.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\charcode.h" />
+    <ClInclude Include="src\debug.h" />
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\reader.h" />
     <ClInclude Include="src\scanner.h" />
+    <ClInclude Include="src\symtab.h" />
     <ClInclude Include="src\token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

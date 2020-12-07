@@ -10,8 +10,8 @@
 #include "token.h"
 
 void initialize(void);
-Token *getToken(void);
-Token *getValidToken(void);
-void printToken(Token *token);
+Token* getToken(void);
+Token* getValidToken(void);
+void printToken(Token* token);
 
 #endif

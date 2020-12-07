@@ -56,6 +56,6 @@ void compileTerm2(void);
 void compileFactor(void);
 void compileIndexes(void);
 
-int compile(char *fileName);
+int compile(char* fileName);
 
 #endif

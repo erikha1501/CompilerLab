@@ -4,9 +4,9 @@
  * @version 1.0
  */
 
+#include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "error.h"
 
 void error(ErrorCode err, int lineNo, int colNo)
 {
@@ -69,7 +69,7 @@ void missingToken(TokenType tokenType, int lineNo, int colNo)
     exit(0);
 }
 
-void assert(char *msg)
+void assert(char* msg)
 {
     printf("%s\n", msg);
 }

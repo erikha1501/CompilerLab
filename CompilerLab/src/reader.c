@@ -4,10 +4,10 @@
  * @version 1.0
  */
 
-#include <stdio.h>
 #include "reader.h"
+#include <stdio.h>
 
-FILE *inputStream;
+FILE* inputStream;
 int lineNo, colNo;
 int currentChar;
 
@@ -23,7 +23,7 @@ int readChar(void)
     return currentChar;
 }
 
-int openInputStream(char *fileName)
+int openInputStream(char* fileName)
 {
 #ifdef _MSC_VER
     fopen_s(&inputStream, fileName, "rt");
