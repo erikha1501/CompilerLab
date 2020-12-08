@@ -451,25 +451,41 @@ void compileArguments(void)
     {
     case SB_LPAR:
         eat(SB_LPAR);
-        compileArguments1();
+        compileArguments2();
         eat(SB_RPAR);
         break;
-        // Nothing left in FOLLOW set.
+    // Check FOLLOW set
+    case SB_SEMICOLON:
+    case KW_END:
+    case KW_ELSE:
+    case SB_TIMES:
+    case SB_SLASH:
+    case SB_PLUS:
+    case SB_MINUS:
+    case KW_TO:
+    case KW_DO:
+    case SB_COMMA:
+    case SB_EQ:
+    case SB_NEQ:
+    case SB_LE:
+    case SB_LT:
+    case SB_GE:
+    case SB_GT:
+    case SB_RPAR:
+    case SB_RSEL:
+    case KW_THEN:
+        break;
     default:
         error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
     }
 }
 
-void compileArguments1(void)
+void compileArguments2(void)
 {
     switch (lookAhead->tokenType)
     {
-    case SB_PLUS:
-    case SB_MINUS:
-    case TK_NUMBER:
-    case TK_CHAR:
-    case TK_IDENT:
-    case SB_LPAR:
+    case SB_COMMA:
+        eat(SB_COMMA);
         compileExpression();
         compileArguments2();
         break;
@@ -478,16 +494,6 @@ void compileArguments1(void)
     default:
         error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
         break;
-    }
-}
-
-void compileArguments2(void)
-{
-    if (lookAhead->tokenType == SB_COMMA)
-    {
-        eat(SB_COMMA);
-        compileExpression();
-        compileArguments2();
     }
 }
 
