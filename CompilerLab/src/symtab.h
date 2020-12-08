@@ -179,4 +179,9 @@ void enterBlock(Scope* scope);
 void exitBlock(void);
 void declareObject(Object* obj);
 
+// Global variables
+SymTab* symtab;
+Type* intType;
+Type* charType;
+
 #endif
