@@ -281,6 +281,7 @@ void freeObject(Object* obj)
 void freeScope(Scope* scope)
 {
     freeObjectList(scope->objList);
+    free(scope);
 }
 
 void freeObjectList(ObjectNode* objList)
@@ -355,27 +356,33 @@ void initSymTab(void)
     Object* param;
 
     symtab = (SymTab*)malloc(sizeof(SymTab));
+    symtab->program = NULL;
     symtab->globalObjectList = NULL;
+    symtab->currentScope = NULL;
 
     obj = createFunctionObject("READC");
-    obj->funcAttrs->returnType = makeCharType();
     addObject(&(symtab->globalObjectList), obj);
+    obj->funcAttrs->returnType = makeCharType();
 
     obj = createFunctionObject("READI");
-    obj->funcAttrs->returnType = makeIntType();
     addObject(&(symtab->globalObjectList), obj);
+    obj->funcAttrs->returnType = makeIntType();
 
     obj = createProcedureObject("WRITEI");
+    addObject(&(symtab->globalObjectList), obj);
+    enterBlock(obj->procAttrs->scope);
     param = createParameterObject("i", PARAM_VALUE, obj);
     param->paramAttrs->type = makeIntType();
-    addObject(&(obj->procAttrs->paramList), param);
-    addObject(&(symtab->globalObjectList), obj);
+    declareObject(param);
+    exitBlock();
 
     obj = createProcedureObject("WRITEC");
+    addObject(&(symtab->globalObjectList), obj);
+    enterBlock(obj->procAttrs->scope);
     param = createParameterObject("ch", PARAM_VALUE, obj);
     param->paramAttrs->type = makeCharType();
-    addObject(&(obj->procAttrs->paramList), param);
-    addObject(&(symtab->globalObjectList), obj);
+    declareObject(param);
+    exitBlock();
 
     obj = createProcedureObject("WRITELN");
     addObject(&(symtab->globalObjectList), obj);

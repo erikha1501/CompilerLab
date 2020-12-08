@@ -531,6 +531,7 @@ void compileArguments(void)
     {
     case SB_LPAR:
         eat(SB_LPAR);
+        compileExpression();
         compileArguments2();
         eat(SB_RPAR);
         break;
