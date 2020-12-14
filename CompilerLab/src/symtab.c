@@ -298,6 +298,7 @@ void freeObject(Object* obj)
         free(obj->typeAttrs);
         break;
     case OBJ_CONSTANT:
+        free(obj->constAttrs->value);
         free(obj->constAttrs);
         break;
     case OBJ_PROCEDURE:
