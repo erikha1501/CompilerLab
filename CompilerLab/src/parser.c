@@ -6,12 +6,12 @@
 
 #include <stdlib.h>
 
+#include "debug.h"
 #include "error.h"
 #include "parser.h"
 #include "reader.h"
 #include "scanner.h"
 #include "symtab.h"
-#include "debug.h"
 
 Token* currentToken;
 Token* lookAhead;
@@ -141,8 +141,7 @@ void compileTypeDecl(void)
     typeObject = createTypeObject(currentToken->string);
 
     eat(SB_EQ);
-    // TODO: Get actual type
-    compileType();
+    typeObject->typeAttrs->actualType = compileType();
 
     eat(SB_SEMICOLON);
     declareObject(typeObject);
@@ -235,6 +234,7 @@ void compileProcDecl(void)
 ConstantValue* compileUnsignedConstant(void)
 {
     ConstantValue* constantValue = NULL;
+    Object* object;
 
     switch (lookAhead->tokenType)
     {
@@ -243,14 +243,24 @@ ConstantValue* compileUnsignedConstant(void)
         constantValue = makeIntConstant(currentToken->value);
         break;
     case TK_IDENT:
-        // TODO lookup
+        object = lookupObject(currentToken->string);
+
+        if (object != NULL)
+        {
+            constantValue = duplicateConstantValue(object->constAttrs->value);
+        }
+        else
+        {
+            // TODO: error
+        }
+        break;
         break;
     case TK_CHAR:
         eat(TK_CHAR);
         constantValue = makeCharConstant(currentToken->value);
         break;
     default:
-        error(ERR_INVALIDCONSTANT, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 
@@ -287,12 +297,22 @@ ConstantValue* compileConstant(void)
 ConstantValue* compileConstant2(void)
 {
     ConstantValue* constantValue = NULL;
+    Object* object;
 
     switch (lookAhead->tokenType)
     {
     case TK_IDENT:
         eat(TK_IDENT);
-        // TODO lookup;
+        object = lookupObject(currentToken->string);
+
+        if (object != NULL)
+        {
+            constantValue = duplicateConstantValue(object->constAttrs->value);
+        }
+        else
+        {
+            // TODO: error
+        }
         break;
     case TK_NUMBER:
         eat(TK_NUMBER);
@@ -300,7 +320,7 @@ ConstantValue* compileConstant2(void)
         break;
 
     default:
-        error(ERR_INVALIDCONSTANT, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_CONSTANT, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 
@@ -309,6 +329,8 @@ ConstantValue* compileConstant2(void)
 
 Type* compileType(void)
 {
+    Object* object;
+
     Type* type = NULL;
     int arraySize = -1;
 
@@ -324,7 +346,16 @@ Type* compileType(void)
         break;
     case TK_IDENT:
         eat(TK_IDENT);
-        // TODO lookup
+        object = lookupObject(currentToken->string);
+
+        if (object != NULL)
+        {
+            type = duplicateType(object->typeAttrs->actualType);
+        }
+        else
+        {
+            // TODO: error
+        }
         break;
     case KW_ARRAY:
         eat(KW_ARRAY);
@@ -336,7 +367,7 @@ Type* compileType(void)
         type = makeArrayType(arraySize, compileType());
         break;
     default:
-        error(ERR_INVALIDTYPE, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_TYPE, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 
@@ -359,7 +390,7 @@ Type* compileBasicType(void)
         break;
 
     default:
-        error(ERR_INVALIDBASICTYPE, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_BASIC_TYPE, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 
@@ -407,7 +438,7 @@ void compileParam(void)
     }
     else
     {
-        error(ERR_INVALIDPARAM, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_PARAMETER, lookAhead->lineNo, lookAhead->colNo);
     }
 
     declareObject(parameterObject);
@@ -458,7 +489,7 @@ void compileStatement(void)
         break;
         // Error occurs
     default:
-        error(ERR_INVALIDSTATEMENT, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_STATEMENT, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 }
@@ -557,7 +588,7 @@ void compileArguments(void)
     case KW_THEN:
         break;
     default:
-        error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_ARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
     }
 }
 
@@ -573,7 +604,7 @@ void compileArguments2(void)
     case SB_RPAR:
         break;
     default:
-        error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_ARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 }
@@ -597,7 +628,7 @@ void compileCondition2(void)
         eat(lookAhead->tokenType);
         break;
     default:
-        error(ERR_INVALIDCOMPARATOR, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_COMPARATOR, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
     compileExpression();
@@ -655,7 +686,7 @@ void compileExpression3(void)
     case KW_THEN:
         break;
     default:
-        error(ERR_INVALIDEXPRESSION, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_EXPRESSION, lookAhead->lineNo, lookAhead->colNo);
     }
 }
 
@@ -699,7 +730,7 @@ void compileTerm2(void)
     case KW_THEN:
         break;
     default:
-        error(ERR_INVALIDTERM, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_TERM, lookAhead->lineNo, lookAhead->colNo);
     }
 }
 
@@ -730,7 +761,7 @@ void compileFactor(void)
         eat(SB_RPAR);
         break;
     default:
-        error(ERR_INVALIDFACTOR, lookAhead->lineNo, lookAhead->colNo);
+        error(ERR_INVALID_FACTOR, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
 }

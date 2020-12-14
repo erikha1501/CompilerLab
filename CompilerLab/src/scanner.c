@@ -99,7 +99,7 @@ void skipBlockComment()
             return;
 
         case 40:
-            error(ERR_ENDOFCOMMENT, lineNo, colNo);
+            error(ERR_END_OF_COMMENT, lineNo, colNo);
             return;
 
         default:
@@ -142,7 +142,7 @@ Token* readIdentKeyword(void)
                 // Check for length limit
                 if (identifierLength > MAX_IDENT_LEN)
                 {
-                    error(ERR_IDENTTOOLONG, lineNo, colNo);
+                    error(ERR_IDENT_TOO_LONG, lineNo, colNo);
                     state = -1;
                     return makeToken(TK_NONE, startLineNo, startColNo);
                 }
@@ -196,7 +196,7 @@ Token* readNumber(void)
             {
                 if (numberLength > MAX_NUM_LEN)
                 {
-                    error(ERR_NUMLITERALTOOLONG, lineNo, colNo);
+                    error(ERR_NUM_LITERAL_TOO_LONG, lineNo, colNo);
                     state = -1;
                     return makeToken(TK_NONE, startLineNo, startColNo);
                 }
@@ -259,7 +259,7 @@ Token* readConstChar(void)
         }
     }
 
-    error(ERR_INVALIDCHARCONSTANT, lineNo, colNo);
+    error(ERR_INVALID_CHAR_CONSTANT, lineNo, colNo);
     state = -1;
     return makeToken(TK_NONE, startLineNo, startColNo);
 }
@@ -275,7 +275,7 @@ Token* getToken(void)
     // Upon entering getToken, state should be 0
     if (state != 0)
     {
-        error(ERR_INTERNALERROR, lineNo, colNo);
+        error(ERR_INTERNAL_ERROR, lineNo, colNo);
     }
 
     switch (charCodes[currentChar])
@@ -397,7 +397,7 @@ Token* getToken(void)
         }
         else
         {
-            error(ERR_INVALIDSYMBOL, lineNo, colNo);
+            error(ERR_INVALID_SYMBOL, lineNo, colNo);
             state = -1;
             return makeToken(TK_NONE, startLineNo, startColNo);
         }
@@ -461,7 +461,7 @@ Token* getToken(void)
 
     default:
         token = makeToken(TK_NONE, lineNo, colNo);
-        error(ERR_INVALIDSYMBOL, lineNo, colNo);
+        error(ERR_INVALID_SYMBOL, lineNo, colNo);
         readCharCode();
         return token;
     }

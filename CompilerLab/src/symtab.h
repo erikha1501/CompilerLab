@@ -177,6 +177,7 @@ void initSymTab(void);
 void cleanSymTab(void);
 void enterBlock(Scope* scope);
 void exitBlock(void);
+Object* lookupObject(char* name);
 void declareObject(Object* obj);
 
 // Global variables

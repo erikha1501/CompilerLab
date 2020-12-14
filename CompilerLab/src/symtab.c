@@ -3,7 +3,6 @@
  * @author Huu-Duc Nguyen
  * @version 1.0
  */
-#define _CRT_SECURE_NO_WARNINGS
 
 #include "symtab.h"
 #include <stdio.h>
@@ -156,7 +155,14 @@ Scope* createScope(Object* owner, Scope* outer)
 Object* createProgramObject(char* programName)
 {
     Object* program = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(program->name, sizeof(program->name), programName, MAX_IDENT_LEN);
+#else
     strcpy(program->name, programName);
+#endif
+
     program->kind = OBJ_PROGRAM;
     program->progAttrs = (ProgramAttributes*)malloc(sizeof(ProgramAttributes));
     program->progAttrs->scope = createScope(program, NULL);
@@ -169,7 +175,14 @@ Object* createProgramObject(char* programName)
 Object* createConstantObject(char* name)
 {
     Object* constantObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(constantObject->name, sizeof(constantObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(constantObject->name, name);
+#endif
+
     constantObject->kind = OBJ_CONSTANT;
     constantObject->constAttrs = (ConstantAttributes*)malloc(sizeof(ConstantAttributes));
 
@@ -179,7 +192,14 @@ Object* createConstantObject(char* name)
 Object* createTypeObject(char* name)
 {
     Object* typeObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(typeObject->name, sizeof(typeObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(typeObject->name, name);
+#endif
+
     typeObject->kind = OBJ_TYPE;
     typeObject->typeAttrs = (TypeAttributes*)malloc(sizeof(TypeAttributes));
     typeObject->typeAttrs->actualType = NULL;
@@ -190,7 +210,14 @@ Object* createTypeObject(char* name)
 Object* createVariableObject(char* name)
 {
     Object* variableObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(variableObject->name, sizeof(variableObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(variableObject->name, name);
+#endif
+
     variableObject->kind = OBJ_VARIABLE;
     variableObject->varAttrs = (VariableAttributes*)malloc(sizeof(VariableAttributes));
     variableObject->varAttrs->type = NULL;
@@ -202,7 +229,14 @@ Object* createVariableObject(char* name)
 Object* createFunctionObject(char* name)
 {
     Object* functionObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(functionObject->name, sizeof(functionObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(functionObject->name, name);
+#endif
+
     functionObject->kind = OBJ_FUNCTION;
     functionObject->funcAttrs = (FunctionAttributes*)malloc(sizeof(FunctionAttributes));
     functionObject->funcAttrs->returnType = NULL;
@@ -215,7 +249,14 @@ Object* createFunctionObject(char* name)
 Object* createProcedureObject(char* name)
 {
     Object* procedureObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(procedureObject->name, sizeof(procedureObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(procedureObject->name, name);
+#endif
+
     procedureObject->kind = OBJ_PROCEDURE;
     procedureObject->procAttrs = (ProcedureAttributes*)malloc(sizeof(ProcedureAttributes));
     procedureObject->procAttrs->paramList = NULL;
@@ -227,7 +268,14 @@ Object* createProcedureObject(char* name)
 Object* createParameterObject(char* name, enum ParamKind kind, Object* owner)
 {
     Object* parameterObject = (Object*)malloc(sizeof(Object));
+
+    // Copy name
+#ifdef _MSC_VER
+    strncpy_s(parameterObject->name, sizeof(parameterObject->name), name, MAX_IDENT_LEN);
+#else
     strcpy(parameterObject->name, name);
+#endif
+
     parameterObject->kind = OBJ_PARAMETER;
     parameterObject->paramAttrs = (ParameterAttributes*)malloc(sizeof(ParameterAttributes));
     parameterObject->paramAttrs->kind = kind;
@@ -337,9 +385,9 @@ Object* findObject(ObjectNode* objList, char* name)
 
     while (current != NULL)
     {
-        if (strcmp(objList->object->name, name) == 0)
+        if (strcmp(current->object->name, name) == 0)
         {
-            return objList->object;
+            return current->object;
         }
 
         current = current->next;
@@ -408,6 +456,27 @@ void enterBlock(Scope* scope)
 void exitBlock(void)
 {
     symtab->currentScope = symtab->currentScope->outer;
+}
+
+Object* lookupObject(char* name)
+{
+    Scope* currentScope = symtab->currentScope;
+    Object* object;
+
+
+    while (currentScope != NULL)
+    {
+        object = findObject(currentScope->objList, name);
+
+        if (object != NULL)
+        {
+            return object;
+        }
+
+        currentScope = currentScope->outer;
+    }
+
+    return NULL;
 }
 
 void declareObject(Object* obj)
