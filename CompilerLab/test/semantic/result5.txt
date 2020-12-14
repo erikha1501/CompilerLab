@@ -1,0 +1,8 @@
+Program Example5
+    Const c = 1
+    Type t = Char
+    Function f : Char
+        Param i : Int
+        Const b = 1
+        Type a = Arr(5,Char)
+

@@ -1,0 +1,5 @@
+Program Example2
+    Var n : Int
+    Function F : Int
+        Param n : Int
+
