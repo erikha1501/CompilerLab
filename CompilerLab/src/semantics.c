@@ -93,6 +93,22 @@ Object* checkDeclaredVariable(char* name)
     {
         error(ERR_UNDECLARED_VARIABLE, currentToken->lineNo, currentToken->colNo);
     }
+    else if (object->kind != OBJ_VARIABLE)
+    {
+        error(ERR_INVALID_VARIABLE, currentToken->lineNo, currentToken->colNo);
+    }
+
+    return object;
+}
+
+Object* checkDeclaredVariable1(char* name)
+{
+    Object* object = lookupObject(name);
+
+    if (object == NULL)
+    {
+        error(ERR_UNDECLARED_VARIABLE, currentToken->lineNo, currentToken->colNo);
+    }
     else
     {
         switch (object->kind)

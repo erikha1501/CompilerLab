@@ -11,6 +11,7 @@
 #include "parser.h"
 #include "reader.h"
 #include "scanner.h"
+#include "semantics.h"
 #include "symtab.h"
 
 Token* currentToken;
@@ -118,6 +119,7 @@ void compileConstDecl(void)
     Object* constantObject = NULL;
 
     eat(TK_IDENT);
+    checkFreshIdent(currentToken->string);
     constantObject = createConstantObject(currentToken->string);
 
     eat(SB_EQ);
@@ -138,6 +140,7 @@ void compileTypeDecl(void)
     Object* typeObject = NULL;
 
     eat(TK_IDENT);
+    checkFreshIdent(currentToken->string);
     typeObject = createTypeObject(currentToken->string);
 
     eat(SB_EQ);
@@ -158,6 +161,7 @@ void compileVarDecl(void)
     Object* variableObject = NULL;
 
     eat(TK_IDENT);
+    checkFreshIdent(currentToken->string);
     variableObject = createVariableObject(currentToken->string);
 
     eat(SB_COLON);
@@ -193,6 +197,7 @@ void compileFuncDecl(void)
     eat(KW_FUNCTION);
 
     eat(TK_IDENT);
+    checkFreshIdent(currentToken->string);
     functionObject = createFunctionObject(currentToken->string);
     declareObject(functionObject);
     enterBlock(functionObject->funcAttrs->scope);
@@ -217,6 +222,7 @@ void compileProcDecl(void)
     eat(KW_PROCEDURE);
 
     eat(TK_IDENT);
+    checkFreshIdent(currentToken->string);
     procedureObject = createProcedureObject(currentToken->string);
     declareObject(procedureObject);
     enterBlock(procedureObject->procAttrs->scope);
@@ -234,7 +240,7 @@ void compileProcDecl(void)
 ConstantValue* compileUnsignedConstant(void)
 {
     ConstantValue* constantValue = NULL;
-    Object* object;
+    Object* object = NULL;
 
     switch (lookAhead->tokenType)
     {
@@ -243,17 +249,11 @@ ConstantValue* compileUnsignedConstant(void)
         constantValue = makeIntConstant(currentToken->value);
         break;
     case TK_IDENT:
-        object = lookupObject(currentToken->string);
-
+        object = checkDeclaredConstant(currentToken->string);
         if (object != NULL)
         {
             constantValue = duplicateConstantValue(object->constAttrs->value);
         }
-        else
-        {
-            // TODO: error
-        }
-        break;
         break;
     case TK_CHAR:
         eat(TK_CHAR);
@@ -297,21 +297,16 @@ ConstantValue* compileConstant(void)
 ConstantValue* compileConstant2(void)
 {
     ConstantValue* constantValue = NULL;
-    Object* object;
+    Object* object = NULL;
 
     switch (lookAhead->tokenType)
     {
     case TK_IDENT:
         eat(TK_IDENT);
-        object = lookupObject(currentToken->string);
-
+        object = checkDeclaredConstant(currentToken->string);
         if (object != NULL)
         {
             constantValue = duplicateConstantValue(object->constAttrs->value);
-        }
-        else
-        {
-            // TODO: error
         }
         break;
     case TK_NUMBER:
@@ -329,7 +324,7 @@ ConstantValue* compileConstant2(void)
 
 Type* compileType(void)
 {
-    Object* object;
+    Object* object = NULL;
 
     Type* type = NULL;
     int arraySize = -1;
@@ -346,15 +341,10 @@ Type* compileType(void)
         break;
     case TK_IDENT:
         eat(TK_IDENT);
-        object = lookupObject(currentToken->string);
-
+        object = checkDeclaredType(currentToken->string);
         if (object != NULL)
         {
             type = duplicateType(object->typeAttrs->actualType);
-        }
-        else
-        {
-            // TODO: error
         }
         break;
     case KW_ARRAY:
@@ -421,7 +411,7 @@ void compileParams2(void)
 void compileParam(void)
 {
     Object* parameterObject = NULL;
-    int paramKind = PARAM_VALUE;
+    enum ParamKind paramKind = PARAM_VALUE;
 
     if (lookAhead->tokenType == KW_VAR)
     {
@@ -432,6 +422,7 @@ void compileParam(void)
     if (lookAhead->tokenType == TK_IDENT)
     {
         eat(TK_IDENT);
+        checkFreshIdent(currentToken->string);
         parameterObject = createParameterObject(currentToken->string, paramKind, symtab->currentScope->owner);
         eat(SB_COLON);
         parameterObject->paramAttrs->type = compileBasicType();
@@ -494,11 +485,24 @@ void compileStatement(void)
     }
 }
 
+void compileLValue(void)
+{
+    Object* lValueObject = NULL;
+
+    eat(TK_IDENT);
+    lValueObject = checkDeclaredLValueIdent(currentToken->string);
+
+    if (lValueObject != NULL && lValueObject->kind == OBJ_VARIABLE &&
+        lValueObject->varAttrs->type->typeClass == TP_ARRAY)
+    {
+        compileIndexes();
+    }
+}
+
 void compileAssignSt(void)
 {
-    // TK_IDENT Indexes
-    eat(TK_IDENT);
-    compileIndexes();
+    compileLValue();
+
     eat(SB_ASSIGN);
     compileExpression();
 }
@@ -506,8 +510,10 @@ void compileAssignSt(void)
 void compileCallSt(void)
 {
     eat(KW_CALL);
-    // ProcedureIdent
+
     eat(TK_IDENT);
+    checkDeclaredProcedure(currentToken->string);
+
     compileArguments();
 }
 
@@ -547,7 +553,10 @@ void compileWhileSt(void)
 void compileForSt(void)
 {
     eat(KW_FOR);
+
     eat(TK_IDENT);
+    checkDeclaredVariable(currentToken->string);
+
     eat(SB_ASSIGN);
     compileExpression();
     eat(KW_TO);
@@ -736,6 +745,8 @@ void compileTerm2(void)
 
 void compileFactor(void)
 {
+    Object* object = NULL;
+
     switch (lookAhead->tokenType)
     {
     case TK_NUMBER:
@@ -746,19 +757,28 @@ void compileFactor(void)
         break;
     case TK_IDENT:
         eat(TK_IDENT);
-        if (lookAhead->tokenType == SB_LSEL)
+        object = checkDeclaredIdent(currentToken->string);
+
+        switch (object->kind)
         {
-            compileIndexes();
-        }
-        else if (lookAhead->tokenType == SB_LPAR)
-        {
+        case OBJ_CONSTANT:
+        case OBJ_PARAMETER:
+            break;
+
+        case OBJ_VARIABLE:
+            if (object->varAttrs->type->typeClass == TP_ARRAY)
+            {
+                compileIndexes();
+            }
+            break;
+        case OBJ_FUNCTION:
             compileArguments();
+            break;
+        default:
+            error(ERR_INVALID_FACTOR, currentToken->lineNo, currentToken->colNo);
+            break;
         }
-        break;
-    case SB_LPAR:
-        eat(SB_LPAR);
-        compileExpression();
-        eat(SB_RPAR);
+
         break;
     default:
         error(ERR_INVALID_FACTOR, lookAhead->lineNo, lookAhead->colNo);

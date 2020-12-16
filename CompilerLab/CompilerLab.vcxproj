@@ -154,6 +154,7 @@
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="src\reader.c" />
     <ClCompile Include="src\scanner.c" />
+    <ClCompile Include="src\semantics.c" />
     <ClCompile Include="src\symtab.c" />
     <ClCompile Include="src\token.c" />
   </ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\reader.h" />
     <ClInclude Include="src\scanner.h" />
+    <ClInclude Include="src\semantics.h" />
     <ClInclude Include="src\symtab.h" />
     <ClInclude Include="src\token.h" />
   </ItemGroup>

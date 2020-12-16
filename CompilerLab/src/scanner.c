@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "charcode.h"
 #include "error.h"
@@ -147,7 +148,7 @@ Token* readIdentKeyword(void)
                     return makeToken(TK_NONE, startLineNo, startColNo);
                 }
 
-                buf[identifierLength++] = currentChar;
+                buf[identifierLength++] = toupper(currentChar);
                 readCharCode();
                 state = 8;
             }
