@@ -485,36 +485,41 @@ void compileStatement(void)
     }
 }
 
-void compileLValue(void)
+Type* compileLValue(void)
 {
     Object* lValueObject = NULL;
 
     eat(TK_IDENT);
     lValueObject = checkDeclaredLValueIdent(currentToken->string);
 
-    if (lValueObject != NULL && lValueObject->kind == OBJ_VARIABLE &&
-        lValueObject->varAttrs->type->typeClass == TP_ARRAY)
+    if (lValueObject != NULL && lValueObject->kind == OBJ_VARIABLE)
     {
-        compileIndexes();
+        return compileIndexes(lValueObject->varAttrs->type);
     }
+
+    return NULL;
 }
 
 void compileAssignSt(void)
 {
-    compileLValue();
+    Type* lValueType = NULL;
+    Type* expressionType = NULL;
+    lValueType = compileLValue();
 
     eat(SB_ASSIGN);
-    compileExpression();
+    expressionType = compileExpression();
+    checkTypeEquality(lValueType, expressionType);
 }
 
 void compileCallSt(void)
 {
+    Object* procedureObject = NULL;
     eat(KW_CALL);
 
     eat(TK_IDENT);
-    checkDeclaredProcedure(currentToken->string);
+    procedureObject = checkDeclaredProcedure(currentToken->string);
 
-    compileArguments();
+    compileArguments(procedureObject->procAttrs->paramList);
 }
 
 void compileGroupSt(void)
@@ -552,27 +557,75 @@ void compileWhileSt(void)
 
 void compileForSt(void)
 {
+    Object* variableObject = NULL;
+    Type* variableType = NULL;
+    Type* fromType = NULL;
+    Type* toType = NULL;
+
     eat(KW_FOR);
 
     eat(TK_IDENT);
-    checkDeclaredVariable(currentToken->string);
+    variableObject = checkDeclaredVariable(currentToken->string);
+    if (variableObject != NULL)
+    {
+        variableType = variableObject->varAttrs->type;
+    }
 
     eat(SB_ASSIGN);
-    compileExpression();
+    fromType = compileExpression();
+    checkTypeEquality(variableType, fromType);
+
     eat(KW_TO);
-    compileExpression();
+    toType = compileExpression();
+    checkTypeEquality(variableObject, toType);
+
     eat(KW_DO);
     compileStatement();
 }
 
-void compileArguments(void)
+void compileArgument(Object* param)
 {
+    Type* expressionType = NULL;
+
+    if (param->paramAttrs->kind == PARAM_VALUE)
+    {
+        expressionType = compileExpression();
+    }
+    else
+    {
+        expressionType = compileLValue();
+    }
+
+    checkTypeEquality(param->paramAttrs->type, expressionType);
+}
+
+void compileArguments(ObjectNode* paramList)
+{
+    ObjectNode* paramNode = paramList;
     switch (lookAhead->tokenType)
     {
     case SB_LPAR:
         eat(SB_LPAR);
-        compileExpression();
-        compileArguments2();
+
+        do
+        {
+            if (paramNode != NULL)
+            {
+                compileArgument(paramNode->object);
+                paramNode = paramNode->next;
+            }
+            else
+            {
+                error(ERR_PARAMETERS_ARGUMENTS_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+            }
+
+        } while (lookAhead->tokenType == SB_COMMA);
+
+        if (paramNode->next != NULL)
+        {
+            error(ERR_PARAMETERS_ARGUMENTS_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+        }
+
         eat(SB_RPAR);
         break;
     // Check FOLLOW set
@@ -601,31 +654,14 @@ void compileArguments(void)
     }
 }
 
-void compileArguments2(void)
-{
-    switch (lookAhead->tokenType)
-    {
-    case SB_COMMA:
-        eat(SB_COMMA);
-        compileExpression();
-        compileArguments2();
-        break;
-    case SB_RPAR:
-        break;
-    default:
-        error(ERR_INVALID_ARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
-        break;
-    }
-}
-
 void compileCondition(void)
 {
-    compileExpression();
-    compileCondition2();
-}
+    Type* leftType = NULL;
+    Type* rightType = NULL;
 
-void compileCondition2(void)
-{
+    leftType = compileExpression();
+    checkBasicType(leftType);
+
     switch (lookAhead->tokenType)
     {
     case SB_EQ:
@@ -640,41 +676,61 @@ void compileCondition2(void)
         error(ERR_INVALID_COMPARATOR, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
-    compileExpression();
+
+    rightType = compileExpression();
+    checkBasicType(rightType);
+    checkTypeEquality(leftType, rightType);
 }
 
-void compileExpression(void)
+Type* compileExpression(void)
 {
-    if (lookAhead->tokenType == SB_PLUS)
-    {
-        eat(SB_PLUS);
-    }
-    else if (lookAhead->tokenType == SB_MINUS)
-    {
-        eat(SB_MINUS);
-    }
+    Type* expressionType = NULL;
 
-    compileExpression2();
-}
-
-void compileExpression2(void)
-{
-    compileTerm();
-    compileExpression3();
-}
-
-void compileExpression3(void)
-{
     switch (lookAhead->tokenType)
     {
     case SB_PLUS:
         eat(SB_PLUS);
-        compileTerm();
+        expressionType = compileExpression2();
+        checkIntType(expressionType);
+        break;
+    case SB_MINUS:
+        eat(SB_MINUS);
+        expressionType = compileExpression2();
+        checkIntType(expressionType);
+        break;
+    default:
+        expressionType = compileExpression2();
+    }
+
+    return expressionType;
+}
+
+Type* compileExpression2(void)
+{
+    Type* termType = NULL;
+
+    termType = compileTerm();
+    compileExpression3();
+
+    return termType;
+}
+
+void compileExpression3(void)
+{
+    Type* expressionType = NULL;
+
+    switch (lookAhead->tokenType)
+    {
+    case SB_PLUS:
+        eat(SB_PLUS);
+        expressionType = compileTerm();
+        checkIntType(expressionType);
         compileExpression3();
         break;
     case SB_MINUS:
         eat(SB_MINUS);
-        compileTerm();
+        expressionType = compileTerm();
+        checkIntType(expressionType);
         compileExpression3();
         break;
         // Check the FOLLOW set
@@ -701,22 +757,30 @@ void compileExpression3(void)
 
 void compileTerm(void)
 {
-    compileFactor();
+    Type* expressionType = NULL;
+    
+    expressionType = compileFactor();
     compileTerm2();
+
+    return expressionType;
 }
 
 void compileTerm2(void)
 {
+    Type* expressionType = NULL;
+
     switch (lookAhead->tokenType)
     {
     case SB_TIMES:
         eat(SB_TIMES);
-        compileFactor();
+        expressionType = compileFactor();
+        checkIntType(expressionType);
         compileTerm2();
         break;
     case SB_SLASH:
         eat(SB_SLASH);
-        compileFactor();
+        expressionType = compileFactor();
+        checkIntType(expressionType);
         compileTerm2();
         break;
         // Check the FOLLOW set
@@ -743,9 +807,10 @@ void compileTerm2(void)
     }
 }
 
-void compileFactor(void)
+Type* compileFactor(void)
 {
     Object* object = NULL;
+    Type* type = NULL;
 
     switch (lookAhead->tokenType)
     {
@@ -766,13 +831,10 @@ void compileFactor(void)
             break;
 
         case OBJ_VARIABLE:
-            if (object->varAttrs->type->typeClass == TP_ARRAY)
-            {
-                compileIndexes();
-            }
+            type = compileIndexes(object->varAttrs->type);
             break;
         case OBJ_FUNCTION:
-            compileArguments();
+            compileArguments(object->funcAttrs->paramList);
             break;
         default:
             error(ERR_INVALID_FACTOR, currentToken->lineNo, currentToken->colNo);
@@ -784,6 +846,8 @@ void compileFactor(void)
         error(ERR_INVALID_FACTOR, lookAhead->lineNo, lookAhead->colNo);
         break;
     }
+
+    return type;
 }
 
 void compileIndexes(void)

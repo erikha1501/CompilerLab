@@ -49,7 +49,7 @@ Object* checkDeclaredIdent(char* name)
     {
         error(ERR_UNDECLARED_IDENT, currentToken->lineNo, currentToken->colNo);
     }
-    
+
     return object;
 }
 
@@ -144,7 +144,7 @@ Object* checkDeclaredFunction(char* name)
     {
         error(ERR_INVALID_FUNCTION, currentToken->lineNo, currentToken->colNo);
     }
-    
+
     return object;
 }
 
@@ -160,7 +160,7 @@ Object* checkDeclaredProcedure(char* name)
     {
         error(ERR_INVALID_PROCEDURE, currentToken->lineNo, currentToken->colNo);
     }
-    
+
     return object;
 }
 
@@ -185,10 +185,6 @@ Object* checkDeclaredLValueIdent(char* name)
             }
             break;
         case OBJ_PARAMETER:
-            if (object->paramAttrs->function != symtab->currentScope->owner)
-            {
-                error(ERR_INVALID_LVALUE, currentToken->lineNo, currentToken->colNo);
-            }
             break;
         default:
             error(ERR_INVALID_LVALUE, currentToken->lineNo, currentToken->colNo);
@@ -197,4 +193,52 @@ Object* checkDeclaredLValueIdent(char* name)
     }
 
     return object;
+}
+
+void checkIntType(Type* type)
+{
+    if (type->typeClass != TP_INT)
+    {
+        error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+    }
+    
+}
+void checkCharType(Type* type)
+{
+    if (type->typeClass != TP_CHAR)
+    {
+        error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+    }
+}
+void checkArrayType(Type* type)
+{
+    if (type->typeClass != TP_ARRAY)
+    {
+        error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+    }
+}
+void checkBasicType(Type* type)
+{
+    if (type->typeClass != TP_CHAR && type->typeClass != TP_INT)
+    {
+        error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+    }
+}
+void checkTypeEquality(Type* type1, Type* type2)
+{
+    if (type1->typeClass != type2->typeClass)
+    {
+        error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+    }
+    else if (type1->typeClass == TP_ARRAY)
+    {
+        if (type1->arraySize != type2->arraySize)
+        {
+            error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+        }
+        else
+        {
+            checkTypeEquality(type1->elementType, type2->elementType);
+        }
+    }
 }
