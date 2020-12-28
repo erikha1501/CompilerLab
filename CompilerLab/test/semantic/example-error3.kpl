@@ -1,0 +1,13 @@
+Program ExampleE3; (* No arguments *)
+   
+Var n : Integer;
+
+Function Sum(a : Integer; b : Integer; Var s : Integer) : Integer;
+  Begin
+    s := a + b;
+    Sum := s;
+  End;
+
+Begin
+  n := Sum;
+End. (* No arguments *)

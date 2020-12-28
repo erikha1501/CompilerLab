@@ -20,6 +20,19 @@ Type* intType;
 Type* charType;
 
 /******************* Type utilities ******************************/
+Type* getConstantType(ConstantValue* constValue)
+{
+    switch (constValue->type)
+    {
+    case TP_CHAR:
+        return charType;
+    case TP_INT:
+        return intType;
+    default:
+        return NULL;
+        break;
+    }
+}
 
 Type* makeIntType(void)
 {

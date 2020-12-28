@@ -15,6 +15,8 @@ extern SymTab* symtab;
 
 int main(int argc, char *argv[])
 {
+    //compile("E:/Project/Uni/CompilerLab/CompilerLab/test/semantic/example2.kpl");
+
     if (argc <= 1)
     {
         printf("parser: no input file.\n");

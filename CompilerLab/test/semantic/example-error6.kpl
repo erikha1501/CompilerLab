@@ -1,0 +1,14 @@
+Program ExampleE6; (* #Arguments < #Parameters + Unclosed *)
+   
+Var n : Integer;
+    k : Integer;
+
+Function Sum(a : Integer; b : Integer; Var s : Integer) : Integer;
+  Begin
+    s := a + b;
+    Sum := s;
+  End;
+
+Begin
+  n := Sum(1, 2
+End. (* #Arguments < #Parameters *)

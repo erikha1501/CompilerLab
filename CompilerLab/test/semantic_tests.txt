@@ -1,6 +1,13 @@
-example 1:semantic/example1.kpl:semantic/result1.txt
-example 2:semantic/example2.kpl:semantic/result2.txt
-example 3:semantic/example3.kpl:semantic/result3.txt
-example 4:semantic/example4.kpl:semantic/result4.txt
-example 5:semantic/example5.kpl:semantic/result5.txt
-example 6:semantic/example6.kpl:semantic/result6.txt
+example1:semantic/example1.kpl:semantic/result1.txt
+example2:semantic/example2.kpl:semantic/result2.txt
+example3:semantic/example3.kpl:semantic/result3.txt
+example4:semantic/example4.kpl:semantic/result4.txt
+example5:semantic/example5.kpl:semantic/result5.txt
+example6:semantic/example6.kpl:semantic/result6.txt
+error1:semantic/example-error1.kpl:semantic/result-error1.txt
+error2:semantic/example-error2.kpl:semantic/result-error2.txt
+error3:semantic/example-error3.kpl:semantic/result-error3.txt
+error4:semantic/example-error4.kpl:semantic/result-error4.txt
+error5:semantic/example-error5.kpl:semantic/result-error5.txt
+error6:semantic/example-error6.kpl:semantic/result-error6.txt
+error7:semantic/example-error7.kpl:semantic/result-error7.txt

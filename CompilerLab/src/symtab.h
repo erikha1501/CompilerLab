@@ -150,6 +150,7 @@ struct SymTab_
 
 typedef struct SymTab_ SymTab;
 
+Type* getConstantType(ConstantValue* constValue);
 Type* makeIntType(void);
 Type* makeCharType(void);
 Type* makeArrayType(int arraySize, Type* elementType);
