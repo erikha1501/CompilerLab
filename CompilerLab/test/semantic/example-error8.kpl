@@ -1,0 +1,13 @@
+Program ExampleE8; (* #Parameters = 0 + #Arguments > 0 *)
+   
+Var n : Integer;
+    k : Integer;
+
+Function Sum : Integer;
+  Begin
+    Sum := 3;
+  End;
+
+Begin
+  n := Sum(
+End. (* #Parameters = 0 + #Arguments > 0 *)

@@ -621,6 +621,12 @@ void compileArguments(ObjectNode* paramList)
 
     if (paramNode == NULL)
     {
+        // No parameter, check for argument presence
+        if (lookAhead->tokenType == SB_LPAR)
+        {
+            error(ERR_PARAMETERS_ARGUMENTS_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+        }
+        
         return;
     }
 
